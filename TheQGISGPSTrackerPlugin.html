@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+  <title>Running the QGIS GPS Tracker Plugin</title>
+
+  
+</head><body>
+<p align="center"><font face="Arial" size="10">Using the QGIS GPS
+Tracker Plugin</font></p>
+
+<p align="left"><font face="Arial" size="5">
+<a href="#Introduction">Introduction</a><br>
+<a href="#Getting_Started">Getting Started</a><br>
+<a href="#Operation">Operating the Plugin</a><br>
+<a href="#Setting_Options">Setting Options</a><br>
+<a href="#Saving_Data">Saving Data</a><br>
+<a href="#Technical">Technical Notes</a></font></p>
+
+<br>
+
+<br>
+
+<br>
+
+<font face="Arial" size="6"><a name="Introduction"></a>Introduction<br>
+</font>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp;
+<font face="Arial" size="5">This is a basic
+GPS Python Plugin for QGIS. It allows the
+user to use a GPS device</font><font face="Arial" size="5"> that is
+emitting
+NMEA messages and that is</font><font face="Arial" size="5"> connected
+to a serial port to display the current position on the QGIS map canvas
+and to show the route</font><font face="Arial" size="5"> on the map
+canvas that is</font><font face="Arial" size="5"> traced by the moving
+GPS receiver. The map canvas is continuously centered on the GPS
+position. The
+user may choose to save the recorded positions to points and/or lines
+SHAPE files if this option is selected. <i>As
+of 2009-11-15 this plugin only works on Windows platforms,</i> the
+implementation of it on Linux
+platforms is planned for the future. For a more advanced GPS plugin the
+reader should try the gpsmapper plugin at:
+http://code.google.com/p/qgismapper/. Another plugin to try is the
+QGisTrackGps
+plugin
+at: http://kubuntu.free.fr/wiki/?page=QGisTrackGps . Some of these
+plugins may only work on Linux systems. <i>This plugin was actually
+developed using the QGisTrackGps plugin as a starting point.</i><br>
+<br>
+The next graphic shows the plugin in operation in QGIS Mimas 1.3.0:<br>
+<img alt="GPS Tracker in operation with Toporama map 62H14 as a backdrop" title="GPS Tracker in operation" src="images/GPSTrackerOperation.png" border="0" height="827" width="1020"><br>
+<br>
+The plugin display
+is shown on the left side below the legend. The connection information
+is shown along with the time, position, bearing and speed. The position
+is always shown as WGS84 latitudes and longitudes. A yellow notched
+triangle marks the current position. The base map is the 62H14 1:50,000
+GeoTiff image available for free from the Government of Canada's
+GeoGratis website.<br>
+<br>
+</font><font face="Arial" size="6"><a name="Getting_Started"></a>Getting
+Started</font><br>
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <font face="Arial" size="5">This
+plugin uses the PySerial plugin library which depends upon the <b>Python
+for Windows extensions library</b>. The <b>Python
+for Windows extensions</b> library is installed in the
+OSGEO4W install of QGIS, but the standalone install requires this to be
+installed and it can be obtained here:
+http://sourceforge.net/projects/pywin32/files/ . Install this if you
+are using one of the separately packaged versions of QGIS.<br>
+<br>
+&nbsp;&nbsp;&nbsp; Once you have ensured that you have the extensions
+library installed and you have this plugin installed then you are ready
+to start. Set your GPS receiver to NMEA output for your serial line and
+connect the GPS output line to a serial port on your computer. Then
+start the connection by clicking the Start Button <img alt="GPS Start Button" title="GPS start button" src="images/StartButton.png" border="1" height="33" width="225"> on
+the plugin
+interface. The first time that this plugin is invoked the serial line
+that the GPS is connected </font><font face="Arial" size="5">to </font><font face="Arial" size="5">and its speed will have to be found. During the
+time that the plugin is searching for a connection you will see this
+information displayed in the plugin window: </font><img alt="GPS Start Button" title="GPS start button" src="images/Connecting.png" border="1" height="35" width="235"><font face="Arial" size="5"> when a connection has been established then a
+message similar to the following appears: </font><img alt="GPS Start Button" title="GPS start button" src="images/ConnectionInfo.png" border="1" height="67" width="270"><font face="Arial" size="5"> this shows the connection speed and the serial
+port that the GPS data is found at and the start button has now changed
+to a "Stop" button. If for some reason the GPS connection is not found,
+you will be notified via a message window: </font><img alt="GPS Start Button" title="GPS start button" src="images/ConnectionFailed.png" border="1" height="166" width="462"><br>
+
+<font face="Arial" size="5">if you see this then you should ensure that
+your OS 'sees' the serial port that is being used (I have an
+ExpressCard providing a serial port and had to install the drivers for
+it) and that your GPS receiver is set to output NMEA messages.<br>
+<br>
+&nbsp;&nbsp;&nbsp; The search for a connection can take a few minutes
+the first time the plugin is started, but the connection settings are
+saved to the registry and subsequent times that QGIS is opened these
+settings are used to connect to the GPS receiver and the connection is
+established fairly quickly from then onwards. If for some reason you
+change the serial port or the speed at some time then you will have to
+go into the <a href="#Setting_Options">options</a> and invoke a full
+search for the connection to have these settings ignored.<br>
+</font><font face="Arial" size="6"><br>
+<a name="Operation"></a>Operating the Plugin<br>
+</font><font face="Arial" size="5">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; Once the GPS tracking has started, the user
+has two options: to stop it entirely &lt;or&gt; to start recording a
+new track.<br>
+&nbsp;&nbsp;&nbsp; The user chooses to start a new track by pushing the
+<img alt="Start New Track Button" title="Start New Track Button" src="images/StartNewTrack.png" border="1" height="28" width="227">button.
+Once this button has been pressed then the user is prompted
+with the options window in case they want to change the track colour or
+the marker. Once the options window is closed then recording of
+positions resumes as a new track.</font><font face="Arial" size="5">
+See the next section
+for information about setting the GPS tracker options.</font><br>
+
+<font face="Arial" size="5">&nbsp;&nbsp;&nbsp;&nbsp; GPS recording is
+halted by pressing the </font><img alt="Stop Button" title="Stop Button" src="images/StopButton.png" border="1" height="29" width="222"><font face="Arial" size="5"> button. The start button
+changed to this once recording started. After GPS recording has stoped
+then this prompt appears:
+</font><img alt="Erase Tracks Option" title="Erase Tracks Option" src="images/EraseTracks.png" border="0" height="127" width="276"><font face="Arial" size="5"> and the user can
+opt to leave the track(s) drawn on the map canvas as other functions
+are done in QGIS.<br>
+<br>
+</font><font face="Arial" size="6"><a name="Setting_Options"></a>Setting
+Options<br>
+<font face="Arial" size="5">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; The tracking
+options can be set by selecting the menu item from the GPS Tracker
+Plugin menu or by starting a new track as mentioned in the previous
+section. The track dialog window appears as follows:<br>
+<p align="center"><img alt="GPS Tracker Options" title="GPS Tracker Options" src="images/GPSTrackerOptions.png" border="0" height="530" width="415"></p>
+There are several options relating to the graphical display of the
+marker and the track, these are obvious so I won't spend time on them.<br>
+&nbsp;&nbsp;&nbsp; You should take note of the sets of options relating
+to the connection, after the first time a connection has been
+established on your computer then the port number and speed are saved
+and set in this area. If the connection has changed and you want the
+plugin to return to searching for a connection and speed then select
+the option to search and then have the plugin window start making a
+connection.<br>
+&nbsp;&nbsp;&nbsp; There is also an option to save the data to SHAPE
+files, after you select this option and you <i>stop the recording of
+GPS positions</i> then you will be prompted for the type of SHAPE files
+to create (points or lines or both) and their names and locations. Once
+you have selected these options the plugin will save the track points
+to the selected files. The structure of these files is shown in the
+last part of this document.<br>
+</font></font><br>
+
+<font face="Arial" size="6"><a name="Saving_Data"></a>Saving Data<br>
+</font><font face="Arial" size="5">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; The GPS track(s) can be saved as a series of points and/or
+as line(s). Saving the data is an option that has to be selected via
+the options window and this option will be saved to the registry. Once
+this option has been selected and GPS recording is stopped then the
+following dialog window appears:<br>
+<p align="center"><img alt="Start saving SHAPE files" title="Start saving SHAPE files" src="images/SaveSHAPEFile1.png" border="0" height="240" width="669"></p>
+all of the controls except the check boxes
+are disabled at the start, to save a type of file then click a check
+box and then click a button and navigate to the location to save a file
+and enter the name for the file. The following display shows this
+window with the points and lines files set up for saving:<br>
+<p align="center"><img alt="Saving SHAPE files" title="Saving SHAPE files" src="images/SaveSHAPEFile3.png" border="0" height="240" width="669"></p>
+The attributes that are saved to these
+SHAPE files are explained in the next section.<br>
+</font><br>
+
+<font face="Arial" size="6"><a name="Technical"></a>Technical Notes</font><font face="Arial" size="6"><font face="Arial" size="5"><br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; The <b>map
+datum</b>
+of the GPS data is set by default to WGS84. If </font></font><font face="Arial" size="6"><font face="Arial" size="5">you are using a
+Garmin GPS receiver and you have</font></font><font face="Arial" size="6"><font face="Arial" size="5"> set the map datum to NAD83 then
+the python
+class GPSTrackerOptions will read the Garmin proprietary messages
+(beginning with $PGRMM) and set the datum accordingly and the output
+SHAPE files will have this set. If you wish to select another datum in
+your receiver then you should add this datum to the class variable
+self.datums in the __init__ method of this class to get your map datum
+recognized.<br>
+<b>Contents of SHAPE Files:</b><br>
+1) The Points Shape Files<br>
+&nbsp;&nbsp;&nbsp; - coordinates are in longitude,latitude<br>
+&nbsp;&nbsp;&nbsp; - attribute fields:<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - LATITUDE: Real (9.6)<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - LONGITUDE: Real (10.6)<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - NUMOFSATS: Integer (2.0) =
+number of satellites used for determination of position<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - HDOP (Real) = Horizontal
+Dilution of Precision = measure of positional accuracy<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - DATETIME: String (19.0) = Date
+&amp; Time of positional determination<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - FIXTYPE: String (1.0) = type of
+</font></font><font face="Arial" size="6"><font face="Arial" size="5">positional
+determination<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; = 1 = GPS fix<br>
+</font></font><font face="Arial" size="6"><font face="Arial" size="5">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; = 2 = Differential GPS fix
+(i.e. used WAAS)</font></font><br>
+
+<font face="Arial" size="6"><font face="Arial" size="5">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; - BEARING: Real (6.2) = direction of </font></font><font face="Arial" size="6"><font face="Arial" size="5">movement at time of
+position</font></font><br>
+
+<font face="Arial" size="6"><font face="Arial" size="5">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; - SPEED-KPH: Real (5.1) = speed of movement at time
+of position (in kilometres/hour)<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - TRACKNUM: Integer (2.0) = the
+track number<br>
+</font></font><font face="Arial" size="6"><font face="Arial" size="5">2)
+The Lines Shape Files<br>
+&nbsp;&nbsp;&nbsp; - coordinates are in longitude,latitude<br>
+&nbsp;&nbsp;&nbsp; - attribute fields:<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - SDATETIME: String (19.0) = Date
+&amp; Time of the start of the line</font></font><font face="Arial" size="6"><font face="Arial" size="5"><br>
+</font></font><font face="Arial" size="6"><font face="Arial" size="5">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; - EDATETIME: String (19.0) = Date &amp; Time of the
+end of the line</font></font><font face="Arial" size="6"><font face="Arial" size="5"><br>
+</font></font><font face="Arial" size="6"><font face="Arial" size="5">&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp; - TRACKNUM: Integer (2.0) = the track number<br>
+</font></font><font face="Arial" size="6"><font face="Arial" size="5">.</font></font><br>
+
+<br>
+
+</body></html>

@@ -1,0 +1,457 @@
+Subject:
+Re: [Qgis-developer] Problems Setting Attribute Size in QgsVectorFileWriter
+From:
+Marco Hugentobler <marco@hugis.net>
+Date:
+Thu, 17 Sep 2009 08:16:59 +0200
+To:
+Bob Bruce <Bob.Bruce@pobox.com>
+
+Hi Bob
+
+I did not (yet) buy a GPS device, so couldn't test your plugin.
+However, I wrote a little (python) test program that you can paste into and 
+execute in the python console in qgis (replacing the file path with one on your 
+system).
+
+If I then open the shapefile (with QGIS), the fields have length 8 and precision 
+4 and are shown like this in the attribute table. Does the test program also 
+work correctly on your system? If not, then it might be due to your GDAL/OGR 
+version (I'm using 1.6.0 here). If yes, then it might be related to your 
+plugin.
+
+Regards,
+Marco
+
+The test program:
+
+from PyQt4.QtCore import *
+from qgis.core import *
+
+fields = {0:QgsField("X", QVariant.Double, "", 8, 4), 1:QgsField("Y", 
+QVariant.Double, "", 8, 4)}
+crs = QgsCoordinateReferenceSystem()
+crs.createFromEpsg(4326)
+writer = QgsVectorFileWriter("/home/marco/tmp/test.shp", "UTF-8", fields, 
+QGis.WKBPoint, crs)
+f = QgsFeature()
+f.setGeometry(QgsGeometry.fromPoint(QgsPoint(5.3465,47.8273)))
+f.addAttribute(0, QVariant(5.3465))
+f.addAttribute(1, QVariant(47.8273))
+writer.addFeature(f)
+f2 = QgsFeature()
+f2.setGeometry(QgsGeometry.fromPoint(QgsPoint(5.3568,47.8299)))
+f2.addAttribute(0, QVariant(5.3568))
+f2.addAttribute(1, QVariant(47.8299))
+writer.addFeature(f2)
+del writer
+
+
+Am Mittwoch, 9. September 2009 13.27:31 schrieben Sie:
+> > Hi Marco:
+> >                  attached is the plugin so far. There are a lot of
+> > QMessageBox statements in it. Please note that it only works on the
+> > serial port and that I have only tested it on Windows so far.
+> >
+> > I have no experience working with the python console or debugger. If you
+> > get a chance to give me a few pointers on using them it would be much
+> > appreciated.
+> >
+> > thanks,
+> >              Bob Bruce
+> >
+> > On 9/9/2009 1:50 AM, Marco Hugentobler wrote:
+>> > > Hi Bob
+>> > >
+>> > > This is strange. I tried to reproduce it with the python console and the
+>> > > debugger. QgsVectorFileWriter picked up the correct values for width and
+>> > > precision. I don't know if it is an OGR library problem.
+>> > >
+>> > > Is it possible for you to send the whole python plugin? Maybe it is
+>> > > easier to reproduce / debug in the whole context.
+>> > >
+>> > > Regards,
+>> > > Marco
+>> > >
+>> > > Am Dienstag, 8. September 2009 18.54:44 schrieb Bob Bruce:
+>>> > >> Hello List:
+>>> > >>
+>>> > >>                           In the QGIS GPS Python plugin that I am
+>>> > >> developing the track is being saved to a points ShapeFile. The problem
+>>> > >> is that the attribute sizes that are set either via the QgsField
+>>> > >> constructor or via the setLength and setPrecision methods aren't getting
+>>> > >> set up and put into the output ShapeFile.
+>>> > >>
+>>> > >> Has anyone been able to these methods or constructor to work to set the
+>>> > >> specific attribute sizes that they wanted? Can someone give me pointers
+>>> > >> on what I am doing wrong which is stopping the correct sizes from
+>>> > >> getting set?
+>>> > >>
+>>> > >> Details about what I am doing and what is written to the file
+>>> > >> follow:....
+>>> > >>
+>>> > >> Thanks,
+>>> > >>
+>>> > >>               Bob Bruce
+>>> > >>
+>>> > >> Here is one example of creating the field and setting it via the
+>>> > >> setLength and setPrecision methods:
+>>> > >>
+>>> > >>                   latf = QgsField ("LATITUDE", QVariant.Double)
+>>> > >>
+>>> > >>                   latf.setLength(9)
+>>> > >>
+>>> > >>                   latf.setPrecision(6)
+>>> > >>
+>>> > >> and here are some examples of creating attributes via the constructor:
+>>> > >>
+>>> > >>                   lonf = QgsField ("LONGITUDE", QVariant.Double, "Real",
+>>> > >> 10, 6)
+>>> > >>
+>>> > >>                   nums = QgsField ("NUMOFSATS", QVariant.Int, "Integer",
+>>> > >> 2, 0)
+>>> > >>
+>>> > >>                   hdop = QgsField ("HDOP", QVariant.Double, "Real", 4,
+>>> > >> 2)
+>>> > >>
+>>> > >>                   fixQuality = QgsField ("FIXQUALITY", QVariant.String)
+>>> > >>
+>>> > >>                   fixQuality.setLength(1)
+>>> > >>
+>>> > >>                   bearing = QgsField ("BEARING", QVariant.Double,
+>>> > >> "Real", 6, 2)
+>>> > >>
+>>> > >>                   speed = QgsField ("SPEED-KPH", QVariant.Double,
+>>> > >> "Real", 5, 1)
+>>> > >>
+>>> > >> (the fixQuality String attribute was set with a setLength method)
+>>> > >>
+>>> > >> I queried the output ShapeFile with the OGRINFO program and this is what
+>>> > >> it displayed:
+>>> > >>
+>>> > >> C:\Caris\Data\GlenwoodArea>OGRINFO -al TEST.SHP
+>>> > >>
+>>> > >> INFO: Open of `TEST.SHP'
+>>> > >>
+>>> > >>         using driver `ESRI Shapefile' successful.
+>>> > >>
+>>> > >> Layer name: TEST
+>>> > >>
+>>> > >> Geometry: Point
+>>> > >>
+>>> > >> Feature Count: 9
+>>> > >>
+>>> > >> Extent: (-97.105202, 49.860450) - (-97.105200, 49.860462)
+>>> > >>
+>>> > >> Layer SRS WKT:
+>>> > >>
+>>> > >> GEOGCS["GCS_North_American_1983",
+>>> > >>
+>>> > >>       DATUM["North_American_Datum_1983",
+>>> > >>
+>>> > >>           SPHEROID["GRS_1980",6378137,298.257222101]],
+>>> > >>
+>>> > >>       PRIMEM["Greenwich",0],
+>>> > >>
+>>> > >>       UNIT["Degree",0.017453292519943295]]
+>>> > >>
+>>> > >> LATITUDE: Real (32.3)
+>>> > >>
+>>> > >> LONGITUDE: Real (32.3)
+>>> > >>
+>>> > >> NUMOFSATS: Integer (10.0)
+>>> > >>
+>>> > >> HDOP: Real (32.3)
+>>> > >>
+>>> > >> FIXQUALITY: String (80.0)
+>>> > >>
+>>> > >> BEARING: Real (32.3)
+>>> > >>
+>>> > >> SPEED-KPH: Real (32.3)
+>>> > >>
+>>> > >> OGRFeature(TEST):0
+>>> > >>
+>>> > >>     LATITUDE (Real) =                           49.860
+>>> > >>
+>>> > >>     LONGITUDE (Real) =                          -97.105
+>>> > >>
+>>> > >>     NUMOFSATS (Integer) = 7
+>>> > >>
+>>> > >>     HDOP (Real) =                            2.500
+>>> > >>
+>>> > >>     FIXQUALITY (String) = 2
+>>> > >>
+>>> > >>     BEARING (Real) =                          225.300
+>>> > >>
+>>> > >>     SPEED-KPH (Real) =                            0.000
+>>> > >>
+>>> > >>     POINT (-97.105201666666673 49.86045)
+>>> > >>
+>>> > >> OGRFeature(TEST):1
+>>> > >>
+>>> > >>     LATITUDE (Real) =                           49.860
+>>> > >>
+>>> > >>     LONGITUDE (Real) =                          -97.105
+>>> > >>
+>>> > >>     NUMOFSATS (Integer) = 7
+>>> > >>
+>>> > >>     HDOP (Real) =                            2.600
+>>> > >>
+>>> > >>     FIXQUALITY (String) = 2
+>>> > >>
+>>> > >>     BEARING (Real) =                          225.300
+>>> > >>
+>>> > >>     SPEED-KPH (Real) =                            0.000
+>>> > >>
+>>> > >>     POINT (-97.105201666666673 49.860453333333332)
+>>> > >>
+>>> > >> Here is the listing of the code in the makeShapeFiles function:
+>>> > >>
+>>> > >>       def makeShapeFiles(self):
+>>> > >>
+>>> > >>           """
+>>> > >>
+>>> > >>           Function to save data to SHAPE files
+>>> > >>
+>>> > >>           """
+>>> > >>
+>>> > >>           #
+>>> > >>
+>>> > >>           # myShapeFileNamesDlg = ShapeFileNames('/test')
+>>> > >>
+>>> > >>           myFileName = QgsProject.instance().fileName()
+>>> > >>
+>>> > >>           myFileName = str(myFileName)
+>>> > >>
+>>> > >>           # if this is a windows OS then the filename needs to have '/'
+>>> > >> converted to '\'
+>>> > >>
+>>> > >>           if myFileName.find('windows') != 0 or
+>>> > >> myFileName.find('Windows') != 0: myFileName =
+>>> > >> os.path.normpath(myFileName)
+>>> > >>
+>>> > >>           myFilePath = os.path.dirname(myFileName)
+>>> > >>
+>>> > >>           #mymessage = 'QGIS Project Pathname=\'' + myFilePath + '\''
+>>> > >>
+>>> > >>
+>>> > >> #QMessageBox.information(self.iface.mainWindow(),"trackGps",mymessage,QM
+>>> > >>ess ageBox.Ok)
+>>> > >>
+>>> > >>           myShapeFileNamesDlg = ShapeFileNames(myFilePath)
+>>> > >>
+>>> > >>           isOK = myShapeFileNamesDlg.exec_()
+>>> > >>
+>>> > >>           if isOK:
+>>> > >>
+>>> > >>               if len(myShapeFileNamesDlg.lnePointsFileName.text())>  0:
+>>> > >>
+>>> > >>
+>>> > >> QMessageBox.information(self.iface.mainWindow(),"trackGPS -
+>>> > >> makeShapeFiles","There are " + str(len(self.GPSTracks)) + " GPS tracks
+>>> > >> to save as points")
+>>> > >>
+>>> > >>                   # set up the fields for the SHAPE file
+>>> > >>
+>>> > >>                   latf = QgsField ("LATITUDE", QVariant.Double)
+>>> > >>
+>>> > >>                   latf.setLength(9)
+>>> > >>
+>>> > >>                   latf.setPrecision(6)
+>>> > >>
+>>> > >>                   lonf = QgsField ("LONGITUDE", QVariant.Double, "Real",
+>>> > >> 10, 6)
+>>> > >>
+>>> > >>                   nums = QgsField ("NUMOFSATS", QVariant.Int, "Integer",
+>>> > >> 2, 0)
+>>> > >>
+>>> > >>                   hdop = QgsField ("HDOP", QVariant.Double, "Real", 4,
+>>> > >> 2)
+>>> > >>
+>>> > >>                   timeUTC = QgsField ("TIMEUTC", QVariant.Time)
+>>> > >>
+>>> > >>                   #fixQuality = QgsField ("FIXQUALITY", QVariant.String,
+>>> > >> "String", 1, 0)
+>>> > >>
+>>> > >>                   fixQuality = QgsField ("FIXQUALITY", QVariant.String)
+>>> > >>
+>>> > >>                   fixQuality.setLength(1)
+>>> > >>
+>>> > >>                   bearing = QgsField ("BEARING", QVariant.Double,
+>>> > >> "Real", 6, 2)
+>>> > >>
+>>> > >>                   speed = QgsField ("SPEED-KPH", QVariant.Double,
+>>> > >> "Real", 5, 1)
+>>> > >>
+>>> > >>                   #qFields = {0:QgsField ("NUMOFSATS", QVariant.Int),
+>>> > >> 1:QgsField ("FIXQUALITY", QVariant.String)}
+>>> > >>
+>>> > >>                   qFields = {}
+>>> > >>
+>>> > >>                   qFields[0] = latf
+>>> > >>
+>>> > >>                   qFields[1] = lonf
+>>> > >>
+>>> > >>                   qFields[2] = nums
+>>> > >>
+>>> > >>                   qFields[3] = hdop
+>>> > >>
+>>> > >>                   #qFields[4] = timeUTC
+>>> > >>
+>>> > >>                   qFields[4] = fixQuality
+>>> > >>
+>>> > >>                   qFields[5] = bearing
+>>> > >>
+>>> > >>                   qFields[6] = speed
+>>> > >>
+>>> > >>                   # set up the CRS
+>>> > >>
+>>> > >>                   CRS = QgsCoordinateReferenceSystem()
+>>> > >>
+>>> > >>                   crsIsOk =
+>>> > >> CRS.createFromEpsg(self.GPSTracks[0][0].datumEPSG)
+>>> > >>
+>>> > >>                   if not crsIsOk:
+>>> > >> QMessageBox.warning(self.iface.mainWindow(),"trackGPS -
+>>> > >> makeShapeFiles","Error creating CRS from"+\
+>>> > >>
+>>> > >>                                                       " EPSG ID:" +
+>>> > >> str(self.GPSTracks[0][0].datumEPSG))
+>>> > >>
+>>> > >>                   else:
+>>> > >>
+>>> > >>                       # open the points SHAPE file
+>>> > >>
+>>> > >>                       pointsFile =
+>>> > >> QgsVectorFileWriter(myShapeFileNamesDlg.lnePointsFileName.text(),"CP1250
+>>> > >>",q Fields,QGis.WKBPoint,CRS)
+>>> > >>
+>>> > >>                       if pointsFile.hasError() !=
+>>> > >> QgsVectorFileWriter.NoError:
+>>> > >>
+>>> > >>                           if pointsFile.hasError() ==
+>>> > >> QgsVectorFileWriter.ErrDriverNotFound:
+>>> > >>
+>>> > >>
+>>> > >> QMessageBox.warning(self.iface.mainWindow(),"trackGPS -
+>>> > >> makeShapeFiles","Error creating Points SHAPE file" +\
+>>> > >>
+>>> > >>                                                           "
+>>> > >> ERROR=\'ErrDriverNotFound\' - saving points is aborted")
+>>> > >>
+>>> > >>                           elif pointsFile.hasError() ==
+>>> > >> QgsVectorFileWriter.ErrCreateDataSource:
+>>> > >>
+>>> > >>
+>>> > >> QMessageBox.warning(self.iface.mainWindow(),"trackGPS -
+>>> > >> makeShapeFiles","Error creating Points SHAPE file" +\
+>>> > >>
+>>> > >>                                                           "
+>>> > >> ERROR=\'ErrCreateDataSource\' - saving points is aborted")
+>>> > >>
+>>> > >>                           elif pointsFile.hasError() ==
+>>> > >> QgsVectorFileWriter.ErrCreateLayer:
+>>> > >>
+>>> > >>
+>>> > >> QMessageBox.warning(self.iface.mainWindow(),"trackGPS -
+>>> > >> makeShapeFiles","Error creating Points SHAPE file" +\
+>>> > >>
+>>> > >>                                                           "
+>>> > >> ERROR=\'ErrCreateLayer\' - saving points is aborted")
+>>> > >>
+>>> > >>                           elif pointsFile.hasError() ==
+>>> > >> QgsVectorFileWriter.ErrAttributeTypeUnsupported:
+>>> > >>
+>>> > >>
+>>> > >> QMessageBox.warning(self.iface.mainWindow(),"trackGPS -
+>>> > >> makeShapeFiles","Error creating Points SHAPE file" +\
+>>> > >>
+>>> > >>                                                           "
+>>> > >> ERROR=\'ErrAttributeTypeUnsupported\' - saving points is aborted")
+>>> > >>
+>>> > >>                           else:
+>>> > >>
+>>> > >>
+>>> > >> QMessageBox.warning(self.iface.mainWindow(),"trackGPS -
+>>> > >> makeShapeFiles","Error creating Points SHAPE file" +\
+>>> > >>
+>>> > >>                                                           "
+>>> > >> ERROR=\'UNKOWN ERROR\' saving points is aborted")
+>>> > >>
+>>> > >>                       else: # file creation is OK - proceed to save
+>>> > >> points
+>>> > >>
+>>> > >>                           for j in range(len(self.GPSTracks)):
+>>> > >>
+>>> > >>
+>>> > >> QMessageBox.information(self.iface.mainWindow(),"trackGPS -
+>>> > >> makeShapeFiles","In track #" + str(j) + " There are: " +
+>>> > >> str(len(self.GPSTracks[j])) + " GPS Positions")
+>>> > >>
+>>> > >>                               for i in range(len(self.GPSTracks[j])):
+>>> > >>
+>>> > >>                                   theFeature = QgsFeature()
+>>> > >>
+>>> > >>                                   latitude =
+>>> > >> self.GPSTracks[j][i].latitude
+>>> > >>
+>>> > >>                                   if self.GPSTracks[j][i].latitudeNS ==
+>>> > >> 'S': latitude = -latitude
+>>> > >>
+>>> > >>                                   longitude =
+>>> > >> self.GPSTracks[j][i].longitude
+>>> > >>
+>>> > >>                                   if self.GPSTracks[j][i].longitudeEW ==
+>>> > >> 'W': longitude = -longitude
+>>> > >>
+>>> > >>
+>>> > >>
+>>> > >> theFeature.setGeometry(QgsGeometry.fromPoint(QgsPoint(longitude,latitude
+>>> > >>)))
+>>> > >>
+>>> > >>                                   theFeature.addAttribute(0,
+>>> > >> QVariant(latitude))
+>>> > >>
+>>> > >>                                   theFeature.addAttribute(1,
+>>> > >> QVariant(longitude))
+>>> > >>
+>>> > >>                                   theFeature.addAttribute(2,
+>>> > >> QVariant(self.GPSTracks[j][i].numSatellites))
+>>> > >>
+>>> > >>                                   theFeature.addAttribute(3,
+>>> > >> QVariant(self.GPSTracks[j][i].hdop))
+>>> > >>
+>>> > >>                                   #theFeature.addAttribute(4,
+>>> > >> QVariant(self.GPSTracks[j][i].timeUTC))
+>>> > >>
+>>> > >>                                   theFeature.addAttribute(4,
+>>> > >> QVariant(self.GPSTracks[j][i].fixQuality))
+>>> > >>
+>>> > >>                                   theFeature.addAttribute(5,
+>>> > >> QVariant(self.GPSTracks[j][i].bearing))
+>>> > >>
+>>> > >>                                   theFeature.addAttribute(6,
+>>> > >> QVariant(self.GPSTracks[j][i].speed))
+>>> > >>
+>>> > >>                                   pointsFile.addFeature(theFeature)
+>>> > >>
+>>> > >> del pointsFile # del file object to force a flush and close
+>> > >
+>> > > ------------------------------------------------------------------------
+>> > >
+>> > >
+>> > > No virus found in this incoming message.
+>> > > Checked by AVG - www.avg.com
+>> > > Version: 8.5.409 / Virus Database: 270.13.83/2353 - Release Date:
+>> > > 09/08/09 06:48:00
+
+
+-- Dr. Marco Hugentobler HUGIS - GIS programming and consulting Honrainweg 5 CH-8038 Zürich marco@hugis.net http://homepage.hispeed.ch/hugis/
+
+
+
+
+No virus found in this incoming message.
+Checked by AVG - www.avg.com 
+Version: 8.5.409 / Virus Database: 270.13.103/2378 - Release Date: 09/17/09 06:18:00
+
