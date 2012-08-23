@@ -254,7 +254,8 @@ class trackGps:
         self.dock.lat.setText(str(aGPSPosition.latitude) + ' ' + aGPSPosition.latitudeNS)
         self.dock.lon.setText(str(aGPSPosition.longitude) + ' ' + aGPSPosition.longitudeEW)
         self.dock.lineBearing.setText("%5.1i"%aGPSPosition.bearing)
-        self.dock.lineSpeed.setText("%5.1i"%aGPSPosition.speed)
+        self.dock.lineSpeed.setText("%6.1i"%aGPSPosition.speed)
+        self.dock.lineAltitude.setText("%6.1i"%aGPSPosition.altitude)
         # display arrow on the map
         latitude = aGPSPosition.latitude if aGPSPosition.latitudeNS == 'N' else aGPSPosition.latitude * -1.0
         longitude = aGPSPosition.longitude if aGPSPosition.longitudeEW == 'E' else aGPSPosition.longitude * -1.0
@@ -368,6 +369,7 @@ class trackGps:
                 lonf = QgsField ("LONGITUDE", QVariant.Double, "Real", 10, 6)
                 nums = QgsField ("NUMOFSATS", QVariant.Int, "Integer", 2, 0)
                 hdop = QgsField ("HDOP", QVariant.Double, "Real", 4, 2)
+                altitude = QgsField ("ALTITUDE", QVariant.Double, "Real", 6, 2)
                 theDateTime = QgsField ("DATETIME", QVariant.String, "String", 19, 0)
                 fixType = QgsField ("FIXTYPE", QVariant.String, "String", 1, 0)
                 #fixType = QgsField ("FIXTYPE", QVariant.String)
@@ -380,11 +382,12 @@ class trackGps:
                 qFields[1] = lonf
                 qFields[2] = nums
                 qFields[3] = hdop
-                qFields[4] = theDateTime
-                qFields[5] = fixType
-                qFields[6] = bearing
-                qFields[7] = speed
-                qFields[8] = trackNumber
+                qFields[4] = altitude
+                qFields[5] = theDateTime
+                qFields[6] = fixType
+                qFields[7] = bearing
+                qFields[8] = speed
+                qFields[9] = trackNumber
                 # set up the CRS
                 # open the points SHAPE file
                 # pointsFile = QgsVectorFileWriter(myShapeFileNamesDlg.lnePointsFileName.text(),"System",qFields,QGis.WKBPoint,CRS)
@@ -402,11 +405,12 @@ class trackGps:
                             theFeature.addAttribute(1, QVariant(longitude))
                             theFeature.addAttribute(2, QVariant(self.GPSTracks[j][i].numSatellites))
                             theFeature.addAttribute(3, QVariant(self.GPSTracks[j][i].hdop))
-                            theFeature.addAttribute(4, QVariant(self.GPSTracks[j][i].theDateTime))
-                            theFeature.addAttribute(5, QVariant(self.GPSTracks[j][i].fixQuality))
-                            theFeature.addAttribute(6, QVariant(self.GPSTracks[j][i].bearing))
-                            theFeature.addAttribute(7, QVariant(self.GPSTracks[j][i].speed))
-                            theFeature.addAttribute(8, QVariant(j+1))
+                            theFeature.addAttribute(4, QVariant(self.GPSTracks[j][i].altitude))
+                            theFeature.addAttribute(5, QVariant(self.GPSTracks[j][i].theDateTime))
+                            theFeature.addAttribute(6, QVariant(self.GPSTracks[j][i].fixQuality))
+                            theFeature.addAttribute(7, QVariant(self.GPSTracks[j][i].bearing))
+                            theFeature.addAttribute(8, QVariant(self.GPSTracks[j][i].speed))
+                            theFeature.addAttribute(9, QVariant(j+1))
                             pointsFile.addFeature(theFeature)
                     del pointsFile # del file object to force a flush and close
             if len(myShapeFileNamesDlg.lneLinesFileName.text()) > 0:

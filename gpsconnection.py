@@ -28,6 +28,7 @@ class GPSPosition(object):
     longitudeEW = longitude E or W of PM
     numSatellites = number of satellites used for fix
     hdop = Horizontal Dilution Of Precision
+    altitude = Altitude in meters above the reference ellipsoid
     theDateTime = date & time of position
     fixQuality = 0 = fix not available
                = 1 = GPS fix
@@ -43,6 +44,7 @@ class GPSPosition(object):
     def __init__(self):
         self.satelliteData = [] # this will be converted to a list of tuples
         self.hdop = 0.0 # accuracy isn't always provided in the message - this is default
+        self.altitude = 0.0 # accuracy isn't always provided in the message - this is default
         self.hasFix = False
 
 
@@ -196,7 +198,8 @@ class GPSConnection(object):
             self.longitude = longitude (float)
             self.longitudeEW = longitude E or W of PM
             self.numSatellites = number of satellites used for fix
-            self.hdop = measure of horizontal accuracy
+            self.hdop = measure of horizontal accuracy(ADD)
+            selft.altitude = Altitude in meters above the reference ellipsoid
             self.theDateTime = date & time of position
             self.fixQuality = 0 = fix not available
                             = 1 = GPS fix
@@ -241,6 +244,7 @@ class GPSConnection(object):
                     thePosition.fixQuality = parts[6]
                     thePosition.numSatellites = int(parts[7])
                     if parts[8] != '': thePosition.hdop = float(parts[8])
+                    if parts[10] != '': thePosition.altitude = float(parts[9])
                     atime = time.localtime()
                     thePosition.theDateTime = str(atime[0]) + "-" + str(atime[1]) + "-" + str(atime[2]) + " " +\
                         str(atime[3]) + ":" + str(atime[4]) + ":" + str(atime[5])
